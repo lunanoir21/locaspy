@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # Development server
+  geospy-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: geospy-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_GEMINI_API_KEY=${VITE_GEMINI_API_KEY}
+    networks:
+      - geospy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Production build
+  geospy-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: geospy-prod
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - geospy-network
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: geospy-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - geospy-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    profiles:
+      - cache
+
+  # Nginx reverse proxy with SSL
+  nginx:
+    image: nginx:alpine
+    container_name: geospy-nginx
+    ports:
+      - "443:443"
+      - "8080:80"
+    volumes:
+      - ./nginx-ssl.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - geospy-prod
+    networks:
+      - geospy-network
+    restart: unless-stopped
+    profiles:
+      - ssl
+
+networks:
+  geospy-network:
+    driver: bridge
+
+volumes:
+  redis-data:
