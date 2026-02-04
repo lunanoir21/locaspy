@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ interface HeaderProps {
 }
 
 export const Header = ({ onSearch, onHistoryClick, onCompareClick }: HeaderProps) => {
+  const navigate = useNavigate();
   const [showLogin, setShowLogin] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Array<{ name: string; lat: number; lng: number }>>([]);
@@ -170,7 +172,10 @@ export const Header = ({ onSearch, onHistoryClick, onCompareClick }: HeaderProps
                   Analysis History
                 </DropdownMenuItem>
                 
-                <DropdownMenuItem className="text-white/70 hover:text-white focus:bg-white/5 cursor-pointer">
+                <DropdownMenuItem 
+                  onClick={() => navigate('/settings')}
+                  className="text-white/70 hover:text-white focus:bg-white/5 cursor-pointer"
+                >
                   <Settings className="w-4 h-4 mr-2" />
                   Settings
                 </DropdownMenuItem>

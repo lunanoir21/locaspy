@@ -1,154 +1,13 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import type { ReactNode } from 'react';
+import { motion, type HTMLMotionProps } from 'framer-motion';
+import { type ReactNode } from 'react';
 
-interface AnimatedContainerProps {
-  children: ReactNode;
-  className?: string;
-  delay?: number;
-}
-
-export const FadeIn = ({ children, className = '', delay = 0 }: AnimatedContainerProps) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    transition={{ duration: 0.4, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
-
-export const SlideIn = ({ children, className = '', delay = 0 }: AnimatedContainerProps) => (
-  <motion.div
-    initial={{ opacity: 0, x: 50 }}
-    animate={{ opacity: 1, x: 0 }}
-    exit={{ opacity: 0, x: -50 }}
-    transition={{ duration: 0.5, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
-
-export const ScaleIn = ({ children, className = '', delay = 0 }: AnimatedContainerProps) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.9 }}
-    animate={{ opacity: 1, scale: 1 }}
-    exit={{ opacity: 0, scale: 0.9 }}
-    transition={{ duration: 0.3, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
-
-export const GlowCard = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <motion.div
-    whileHover={{ 
-      boxShadow: '0 0 40px rgba(255, 255, 255, 0.15)',
-      borderColor: 'rgba(255, 255, 255, 0.3)'
-    }}
-    transition={{ duration: 0.3 }}
-    className={`bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden ${className}`}
-  >
-    {children}
-  </motion.div>
-);
-
-export const AnimatedButton = ({ 
-  children, 
-  onClick, 
-  className = '',
-  variant = 'primary'
-}: { 
-  children: ReactNode; 
-  onClick?: () => void; 
-  className?: string;
-  variant?: 'primary' | 'secondary' | 'ghost';
-}) => {
-  const baseStyles = 'px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2';
-  const variants = {
-    primary: 'bg-white text-black hover:bg-gray-100',
-    secondary: 'bg-white/10 text-white border border-white/20 hover:bg-white/15',
-    ghost: 'text-white/70 hover:text-white hover:bg-white/5'
-  };
-
-  return (
-    <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className={`${baseStyles} ${variants[variant]} ${className}`}
-    >
-      {children}
-    </motion.button>
-  );
-};
-
-export const StaggerContainer = ({ 
-  children, 
-  className = '',
-  staggerDelay = 0.1
-}: { 
-  children: ReactNode; 
-  className?: string;
-  staggerDelay?: number;
-}) => (
-  <motion.div
-    initial="hidden"
-    animate="visible"
-    variants={{
-      hidden: { opacity: 0 },
-      visible: {
-        opacity: 1,
-        transition: {
-          staggerChildren: staggerDelay
-        }
-      }
-    }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
-
-export const StaggerItem = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <motion.div
-    variants={{
-      hidden: { opacity: 0, y: 20 },
-      visible: { opacity: 1, y: 0 }
-    }}
-    className={className}
-  >
-    {children}
-  </motion.div>
-);
-
-export const PulseRing = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <div className={`relative ${className}`}>
-    <motion.div
-      className="absolute inset-0 rounded-full border-2 border-white/30"
-      animate={{
-        scale: [1, 1.2, 1],
-        opacity: [0.5, 0, 0.5]
-      }}
-      transition={{
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }}
-    />
-    {children}
-  </div>
-);
-
-export const LoadingDots = ({ className = '' }: { className?: string }) => (
-  <div className={`flex gap-1 ${className}`}>
+// Loading Dots Animation
+export const LoadingDots = () => (
+  <div className="flex gap-1">
     {[0, 1, 2].map((i) => (
       <motion.div
         key={i}
-        className="w-2 h-2 bg-white rounded-full"
+        className="w-2 h-2 bg-white/60 rounded-full"
         animate={{
           scale: [1, 1.2, 1],
           opacity: [0.5, 1, 0.5]
@@ -163,55 +22,126 @@ export const LoadingDots = ({ className = '' }: { className?: string }) => (
   </div>
 );
 
-export const ProgressBar = ({ progress, className = '' }: { progress: number; className?: string }) => (
-  <div className={`h-2 bg-white/10 rounded-full overflow-hidden ${className}`}>
+// Progress Bar
+interface ProgressBarProps {
+  progress: number;
+  className?: string;
+}
+
+export const ProgressBar = ({ progress, className = '' }: ProgressBarProps) => (
+  <div className={`w-full h-2 bg-white/10 rounded-full overflow-hidden ${className}`}>
     <motion.div
       className="h-full bg-gradient-to-r from-white/60 to-white rounded-full"
       initial={{ width: 0 }}
       animate={{ width: `${progress}%` }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
     />
   </div>
 );
 
-export const AnimatedCounter = ({ 
-  value, 
-  suffix = '',
-  className = '' 
-}: { 
-  value: number; 
-  suffix?: string;
-  className?: string;
-}) => (
-  <motion.span
-    key={value}
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    className={className}
+// Page Transition
+interface PageTransitionProps {
+  children: ReactNode;
+}
+
+export const PageTransition = ({ children }: PageTransitionProps) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.3 }}
   >
-    {value}{suffix}
-  </motion.span>
+    {children}
+  </motion.div>
 );
 
-export const HoverLift = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
+// Fade In Animation
+interface FadeInProps {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}
+
+export const FadeIn = ({ children, delay = 0, className = '' }: FadeInProps) => (
   <motion.div
-    whileHover={{ y: -4 }}
-    transition={{ duration: 0.2 }}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay }}
     className={className}
   >
     {children}
   </motion.div>
 );
 
-export const PageTransition = ({ children }: { children: ReactNode }) => (
-  <AnimatePresence mode="wait">
+// Glow Card
+interface GlowCardProps extends HTMLMotionProps<'div'> {
+  children: ReactNode;
+  className?: string;
+}
+
+export const GlowCard = ({ children, className = '', ...props }: GlowCardProps) => (
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    className={`bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm
+               hover:border-white/20 transition-all ${className}`}
+    {...props}
+  >
+    {children}
+  </motion.div>
+);
+
+// Slide In
+interface SlideInProps {
+  children: ReactNode;
+  direction?: 'left' | 'right' | 'up' | 'down';
+  delay?: number;
+  className?: string;
+}
+
+export const SlideIn = ({ 
+  children, 
+  direction = 'up', 
+  delay = 0,
+  className = '' 
+}: SlideInProps) => {
+  const directions = {
+    left: { x: -50, y: 0 },
+    right: { x: 50, y: 0 },
+    up: { x: 0, y: 50 },
+    down: { x: 0, y: -50 }
+  };
+
+  return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, ...directions[direction] }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
+      transition={{ duration: 0.5, delay }}
+      className={className}
     >
       {children}
     </motion.div>
-  </AnimatePresence>
+  );
+};
+
+// Pulse Animation
+interface PulseProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export const Pulse = ({ children, className = '' }: PulseProps) => (
+  <motion.div
+    animate={{
+      scale: [1, 1.05, 1],
+      opacity: [1, 0.8, 1]
+    }}
+    transition={{
+      duration: 2,
+      repeat: Infinity,
+      ease: 'easeInOut'
+    }}
+    className={className}
+  >
+    {children}
+  </motion.div>
 );

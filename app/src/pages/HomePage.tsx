@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { AdvancedMapView } from '@/components/map/AdvancedMapView';
 import { AnalysisPanel } from '@/components/analysis/AnalysisPanel';
 import { ImageUploader } from '@/components/analysis/ImageUploader';
 import { AgentPanel } from '@/components/agent/AgentPanel';
 import { CompareMode } from '@/components/analysis/CompareMode';
-import { LoginModal } from '@/components/auth/LoginModal';
 import { useAuthStore } from '@/store/authStore';
 import { useAnalysisStore } from '@/store/analysisStore';
 import { useAgentStore } from '@/store/agentStore';
@@ -16,7 +16,6 @@ import {
   PageTransition 
 } from '@/components/ui/animated-container';
 import { 
-  Map as MapIcon, 
   Upload, 
   PanelRight,
   X,
@@ -25,7 +24,8 @@ import {
   Sparkles
 } from 'lucide-react';
 
-function App() {
+export const HomePage = () => {
+  const navigate = useNavigate();
   const [mapCenter, setMapCenter] = useState<GeoLocation>({ lat: 52.5200, lng: 13.4050 });
   const [showUploader, setShowUploader] = useState(false);
   const [showPanel, setShowPanel] = useState(true);
@@ -33,8 +33,6 @@ function App() {
   const [showCompareMode, setShowCompareMode] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState<'analysis' | 'agent'>('analysis');
   const [viewMode, setViewMode] = useState<'map' | 'satellite' | 'terrain'>('map');
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   
   const { checkAuth, user, isAuthenticated } = useAuthStore();
   const { 
@@ -50,15 +48,11 @@ function App() {
   useEffect(() => {
     checkAuth();
     
-    // Show onboarding for first-time users
-    const hasSeenOnboarding = localStorage.getItem('geospy-onboarding');
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
-    } else if (!isAuthenticated) {
-      // Show login modal if not authenticated and has seen onboarding
-      setShowLoginModal(true);
+    // Redirect to login if not authenticated
+    if (!isAuthenticated) {
+      navigate('/login');
     }
-  }, [checkAuth, isAuthenticated]);
+  }, [checkAuth, isAuthenticated, navigate]);
 
   useEffect(() => {
     if (currentResult) {
@@ -68,6 +62,14 @@ function App() {
 
   const handleImageSelect = async (imageBase64: string) => {
     try {
+      // Check if API key is configured
+      const apiKey = localStorage.getItem('gemini-api-key') || import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        alert('API anahtarı yapılandırılmamış. Lütfen Ayarlar sayfasından API anahtarınızı girin.');
+        navigate('/settings');
+        return;
+      }
+
       // Add to agent batch queue
       addToBatchQueue(imageBase64);
       
@@ -76,7 +78,8 @@ function App() {
       setShowUploader(false);
     } catch (error) {
       console.error('Analysis failed:', error);
-      alert('Analiz başarısız oldu. Lütfen tekrar deneyin veya API anahtarınızı kontrol edin.');
+      const errorMessage = error instanceof Error ? error.message : 'Analiz başarısız oldu';
+      alert(`Hata: ${errorMessage}\n\nLütfen API anahtarınızı Ayarlar sayfasından kontrol edin.`);
     }
   };
 
@@ -90,10 +93,9 @@ function App() {
     }
   };
 
-  const closeOnboarding = () => {
-    localStorage.setItem('geospy-onboarding', 'true');
-    setShowOnboarding(false);
-  };
+  if (!isAuthenticated) {
+    return null; // Will redirect in useEffect
+  }
 
   return (
     <PageTransition>
@@ -305,78 +307,9 @@ function App() {
             <CompareMode onClose={() => setShowCompareMode(false)} />
           )}
         </AnimatePresence>
-
-        {/* Login Modal */}
-        <LoginModal 
-          isOpen={showLoginModal} 
-          onClose={() => setShowLoginModal(false)} 
-        />
-
-        {/* Onboarding Modal */}
-        <AnimatePresence>
-          {showOnboarding && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-xl flex items-center justify-center"
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="max-w-2xl w-full mx-4"
-              >
-                <div className="bg-zinc-950 border border-white/15 rounded-3xl p-8">
-                  <div className="text-center mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-white/20 to-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Sparkles className="w-10 h-10 text-white" />
-                    </div>
-                    <h2 className="text-3xl font-bold text-white mb-3">Welcome to GeoSpy AI</h2>
-                    <p className="text-white/60 text-lg">Advanced geolocation analysis powered by Gemini AI</p>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4 mb-8">
-                    {[
-                      { icon: Upload, title: 'Upload', desc: 'Drop any image to analyze' },
-                      { icon: Bot, title: 'AI Analysis', desc: 'Gemini identifies the location' },
-                      { icon: MapIcon, title: 'Explore', desc: 'View results on interactive map' }
-                    ].map(({ icon: Icon, title, desc }) => (
-                      <div key={title} className="bg-white/5 rounded-xl p-4 text-center">
-                        <Icon className="w-8 h-8 text-white/60 mx-auto mb-3" />
-                        <h3 className="text-white font-medium mb-1">{title}</h3>
-                        <p className="text-white/40 text-sm">{desc}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-4">
-                    <button
-                      onClick={closeOnboarding}
-                      className="flex-1 bg-white text-black py-4 rounded-xl font-medium hover:bg-gray-100 transition-colors"
-                    >
-                      Get Started
-                    </button>
-                    {!isAuthenticated && (
-                      <button
-                        onClick={() => {
-                          closeOnboarding();
-                          setShowLoginModal(true);
-                        }}
-                        className="flex-1 bg-white/10 text-white py-4 rounded-xl font-medium hover:bg-white/15 transition-colors border border-white/20"
-                      >
-                        Sign In
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </PageTransition>
   );
-}
+};
 
-export default App;
+export default HomePage;

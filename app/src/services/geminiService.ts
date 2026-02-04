@@ -14,9 +14,14 @@ class GeminiService {
   private readonly CACHE_TTL = 1000 * 60 * 60; // 1 hour
 
   constructor() {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    const apiKey = localStorage.getItem('gemini-api-key') || import.meta.env.VITE_GEMINI_API_KEY || '';
+    const modelName = localStorage.getItem('gemini-model') || 'gemini-2.5-flash';
+    if (!apiKey) {
+      console.warn('Gemini API key not configured');
+    }
+    console.log('Initializing Gemini with model:', modelName);
     this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    this.model = this.genAI.getGenerativeModel({ model: modelName });
   }
 
   private getCacheKey(imageBase64: string): string {
@@ -44,6 +49,18 @@ class GeminiService {
       console.log('Using cached analysis result');
       return cached;
     }
+
+    // Check if API key is configured
+    const apiKey = localStorage.getItem('gemini-api-key') || import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey || apiKey === '') {
+      throw new Error('Gemini API key is not configured. Please add your API key in Settings.');
+    }
+
+    // Reinitialize with current API key and model
+    const modelName = localStorage.getItem('gemini-model') || 'gemini-2.5-flash';
+    console.log('Using Gemini model:', modelName);
+    this.genAI = new GoogleGenerativeAI(apiKey);
+    this.model = this.genAI.getGenerativeModel({ model: modelName });
 
     try {
       const prompt = `You are an expert geolocation analyst. Analyze this image and determine the geographic location with high precision.
@@ -96,13 +113,21 @@ Confidence Guidelines:
       const response = await result.response;
       const text = response.text();
       
+      console.log('Gemini raw response:', text);
+      
       // Extract JSON from response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error('Invalid response format from Gemini');
+        console.error('No JSON found in response:', text);
+        throw new Error('Invalid response format from Gemini. The AI did not return valid JSON.');
       }
 
       const parsedResponse: GeminiAnalysisResponse = JSON.parse(jsonMatch[0]);
+      
+      // Validate response structure
+      if (!parsedResponse.location || !parsedResponse.analysis) {
+        throw new Error('Invalid response structure from Gemini');
+      }
       
       // Validate and adjust confidence
       const validated = this.validateAnalysis(parsedResponse, text);
@@ -114,7 +139,18 @@ Confidence Guidelines:
       return parsedResponse;
     } catch (error) {
       console.error('Gemini analysis error:', error);
-      throw new Error('Failed to analyze image with AI');
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          throw error;
+        }
+        if (error.message.includes('quota')) {
+          throw new Error('API quota exceeded. Please try again later or check your Gemini API quota.');
+        }
+        if (error.message.includes('Invalid response')) {
+          throw error;
+        }
+      }
+      throw new Error('Failed to analyze image with AI. Please check your internet connection and try again.');
     }
   }
 
