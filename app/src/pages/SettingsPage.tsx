@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,8 +18,8 @@ import { motion } from 'framer-motion';
 
 export const SettingsPage = () => {
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useLanguage();
   const [apiKey, setApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || '');
-  const [language, setLanguage] = useState(localStorage.getItem('app-language') || 'tr');
   const [selectedModel, setSelectedModel] = useState(localStorage.getItem('gemini-model') || 'gemini-2.5-flash');
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState('');
@@ -67,7 +68,6 @@ export const SettingsPage = () => {
     
     // Save to localStorage
     localStorage.setItem('gemini-api-key', apiKey);
-    localStorage.setItem('app-language', language);
     localStorage.setItem('gemini-model', selectedModel);
     
     setTimeout(() => {
@@ -87,9 +87,9 @@ export const SettingsPage = () => {
           className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Geri Dön</span>
+          <span>{t('header.back')}</span>
         </button>
-        <h1 className="ml-6 text-xl font-bold text-white">Ayarlar</h1>
+        <h1 className="ml-6 text-xl font-bold text-white">{t('settings.title')}</h1>
       </header>
 
       {/* Content */}
@@ -106,16 +106,16 @@ export const SettingsPage = () => {
                 <Globe className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-white">Sistem Dili</h2>
-                <p className="text-sm text-white/50">Uygulama dilini seçin</p>
+                <h2 className="text-lg font-semibold text-white">{t('settings.systemLanguage')}</h2>
+                <p className="text-sm text-white/50">{t('settings.selectLanguage')}</p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-white/70">Dil</Label>
+              <Label className="text-white/70">{t('settings.language')}</Label>
               <select
                 value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={(e) => setLanguage(e.target.value as any)}
                 className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-3 text-white
                          focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20"
               >
@@ -178,11 +178,11 @@ export const SettingsPage = () => {
                   className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-3 text-white
                            focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20"
                 >
-                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (Önerilen - En Yeni)</option>
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (Önerilen)</option>
                   <option value="gemini-2.5-pro">Gemini 2.5 Pro (En Güçlü)</option>
                   <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                  <option value="gemini-1.5-flash">Gemini 1.5 Flash (Hızlı)</option>
-                  <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                  <option value="gemini-flash-latest">Gemini Flash Latest</option>
+                  <option value="gemini-pro-latest">Gemini Pro Latest</option>
                 </select>
                 <p className="text-xs text-white/40">
                   Gemini 2.5 Flash en yeni ve dengeli modeldir

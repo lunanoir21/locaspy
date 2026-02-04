@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Header } from '@/components/layout/Header';
 import { AdvancedMapView } from '@/components/map/AdvancedMapView';
 import { AnalysisPanel } from '@/components/analysis/AnalysisPanel';
 import { ImageUploader } from '@/components/analysis/ImageUploader';
 import { AgentPanel } from '@/components/agent/AgentPanel';
 import { CompareMode } from '@/components/analysis/CompareMode';
+import { ResultModal } from '@/components/analysis/ResultModal';
 import { useAuthStore } from '@/store/authStore';
 import { useAnalysisStore } from '@/store/analysisStore';
 import { useAgentStore } from '@/store/agentStore';
@@ -26,11 +28,13 @@ import {
 
 export const HomePage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [mapCenter, setMapCenter] = useState<GeoLocation>({ lat: 52.5200, lng: 13.4050 });
   const [showUploader, setShowUploader] = useState(false);
   const [showPanel, setShowPanel] = useState(true);
   const [showAgentPanel, setShowAgentPanel] = useState(false);
   const [showCompareMode, setShowCompareMode] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
   const [activeSidebar, setActiveSidebar] = useState<'analysis' | 'agent'>('analysis');
   const [viewMode, setViewMode] = useState<'map' | 'satellite' | 'terrain'>('map');
   
@@ -45,6 +49,15 @@ export const HomePage = () => {
 
   const { batchQueue, addToBatchQueue } = useAgentStore();
 
+  // Safe translation function
+  const translate = (key: string) => {
+    try {
+      return t(key as any) || key;
+    } catch (e) {
+      return key;
+    }
+  };
+
   useEffect(() => {
     checkAuth();
     
@@ -57,6 +70,8 @@ export const HomePage = () => {
   useEffect(() => {
     if (currentResult) {
       setMapCenter(currentResult.location);
+      // Show result modal when analysis completes
+      setShowResultModal(true);
     }
   }, [currentResult]);
 
@@ -126,7 +141,7 @@ export const HomePage = () => {
                          shadow-lg hover:shadow-xl transition-shadow"
               >
                 <Upload className="w-5 h-5" />
-                Upload Image
+                {t('home.uploadImage')}
               </motion.button>
 
               {/* Quick Actions */}
@@ -139,7 +154,7 @@ export const HomePage = () => {
                     className="bg-zinc-950 border border-white/15 rounded-2xl p-4 shadow-2xl w-80"
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-white font-medium">Upload Image</h3>
+                      <h3 className="text-white font-medium">{translate('home.uploadImage')}</h3>
                       <button 
                         onClick={() => setShowUploader(false)}
                         className="text-white/40 hover:text-white transition-colors"
@@ -216,7 +231,7 @@ export const HomePage = () => {
                         : 'text-white/70 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    {translate(`home.${mode}`)}
                   </button>
                 ))}
               </div>
@@ -232,7 +247,7 @@ export const HomePage = () => {
               >
                 <div className="bg-zinc-900/90 backdrop-blur border border-white/20 rounded-full px-6 py-3 flex items-center gap-3">
                   <Sparkles className="w-5 h-5 text-white animate-pulse" />
-                  <span className="text-white text-sm">AI is analyzing...</span>
+                  <span className="text-white text-sm">{translate('home.aiAnalyzing')}</span>
                   <LoadingDots />
                 </div>
               </motion.div>
@@ -305,6 +320,16 @@ export const HomePage = () => {
         <AnimatePresence>
           {showCompareMode && (
             <CompareMode onClose={() => setShowCompareMode(false)} />
+          )}
+        </AnimatePresence>
+
+        {/* Result Modal */}
+        <AnimatePresence>
+          {showResultModal && currentResult && (
+            <ResultModal 
+              result={currentResult} 
+              onClose={() => setShowResultModal(false)} 
+            />
           )}
         </AnimatePresence>
       </div>

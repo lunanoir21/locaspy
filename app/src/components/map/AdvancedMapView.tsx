@@ -4,6 +4,7 @@ import L from 'leaflet';
 import type { LatLngExpression } from 'leaflet';
 import type { GeoLocation, AnalysisResult } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Crosshair, 
   MapPin, 
@@ -125,6 +126,7 @@ export const AdvancedMapView = ({
   height = '100%',
   showAccuracy = true
 }: AdvancedMapViewProps) => {
+  const { t } = useLanguage();
   const [mapCenter, setMapCenter] = useState<GeoLocation>(center);
   const [activeLayer, setActiveLayer] = useState<MapLayer>('dark');
   const [showMarkers, setShowMarkers] = useState(true);
@@ -263,13 +265,13 @@ export const AdvancedMapView = ({
           >
             {/* Layer Selector */}
             <div className="bg-zinc-900/90 backdrop-blur border border-white/20 rounded-xl p-2">
-              <p className="text-white/50 text-xs mb-2 px-2">Map Layer</p>
+              <p className="text-white/50 text-xs mb-2 px-2">{t('map.layers')}</p>
               <div className="space-y-1">
                 {([
-                  { key: 'dark', icon: MapIcon, label: 'Dark' },
-                  { key: 'satellite', icon: Satellite, label: 'Satellite' },
-                  { key: 'terrain', icon: Mountain, label: 'Terrain' },
-                  { key: 'standard', icon: Layers, label: 'Standard' }
+                  { key: 'dark', icon: MapIcon, label: t('map.dark') },
+                  { key: 'satellite', icon: Satellite, label: t('map.satellite') },
+                  { key: 'terrain', icon: Mountain, label: t('map.terrain') },
+                  { key: 'standard', icon: Layers, label: t('map.standard') }
                 ] as const).map(({ key, icon: Icon, label }) => (
                   <button
                     key={key}
@@ -289,7 +291,7 @@ export const AdvancedMapView = ({
 
             {/* Overlay Controls */}
             <div className="bg-zinc-900/90 backdrop-blur border border-white/20 rounded-xl p-2">
-              <p className="text-white/50 text-xs mb-2 px-2">Overlays</p>
+              <p className="text-white/50 text-xs mb-2 px-2">{t('map.layers')}</p>
               <div className="space-y-1">
                 <button
                   onClick={() => setShowMarkers(!showMarkers)}
@@ -298,7 +300,7 @@ export const AdvancedMapView = ({
                   }`}
                 >
                   <MapPin className="w-4 h-4" />
-                  Markers
+                  {t('map.markers')}
                 </button>
                 <button
                   onClick={() => setShowGrid(!showGrid)}
@@ -307,7 +309,7 @@ export const AdvancedMapView = ({
                   }`}
                 >
                   <Compass className="w-4 h-4" />
-                  Grid
+                  {t('map.grid')}
                 </button>
               </div>
             </div>

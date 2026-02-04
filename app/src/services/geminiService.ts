@@ -63,42 +63,130 @@ class GeminiService {
     this.model = this.genAI.getGenerativeModel({ model: modelName });
 
     try {
-      const prompt = `You are an expert geolocation analyst. Analyze this image and determine the geographic location with high precision.
+      const prompt = `You are a WORLD-CLASS geolocation expert with 20+ years of OSINT experience. Your reputation depends on ACCURACY over speed. You MUST be EXTREMELY CONSERVATIVE with confidence scores.
 
-CRITICAL: Be conservative with your confidence. Only provide high confidence (>70%) if you see CLEAR, UNAMBIGUOUS indicators.
+🚨 CRITICAL MISSION: MINIMIZE FALSE POSITIVES AT ALL COSTS 🚨
 
-Look for these HIGH-CONFIDENCE indicators (in order of reliability):
-1. Street signs with clear text and language
-2. License plates with country codes
-3. Store/restaurant chains with location-specific names
-4. Unique landmarks (Eiffel Tower, etc.)
-5. Architecture specific to a region
-6. Vehicle types and road markings
-7. Vegetation and climate indicators
-8. People's clothing and cultural elements
+═══════════════════════════════════════════════════════════════
+TIER SYSTEM - STRICT EVIDENCE REQUIREMENTS
+═══════════════════════════════════════════════════════════════
 
-Provide analysis in this exact JSON format:
+🏆 TIER 1 - DEFINITIVE PROOF (Confidence: 85-100%)
+REQUIRES: 3+ of these SPECIFIC, VERIFIABLE indicators:
+✓ Readable street signs with EXACT street names (not generic "Main St")
+✓ License plates with VISIBLE country/region codes
+✓ Business signs with VERIFIABLE addresses or phone numbers
+✓ Unique landmarks with KNOWN GPS coordinates (Eiffel Tower, Big Ben, etc.)
+✓ Government buildings with IDENTIFIABLE architectural features
+✓ Metro/train stations with VISIBLE line numbers and station names
+✓ Postal codes, area codes visible in image
+✓ Specific chain stores UNIQUE to one country (not McDonald's/Starbucks)
+
+⚠️ WARNING: If you don't have 3+ TIER 1 indicators, MAX confidence is 70%!
+
+🥈 TIER 2 - STRONG EVIDENCE (Confidence: 55-75%)
+REQUIRES: 4+ of these indicators TOGETHER:
+✓ Architectural style + Language on signs + Vehicle types
+✓ Road markings + Traffic signs + Electrical infrastructure
+✓ Climate indicators + Vegetation + Building materials
+✓ Urban planning style + Street furniture + Sidewalk patterns
+✓ Regional chain stores + Local advertising + Cultural elements
+
+⚠️ WARNING: TIER 2 alone = MAX 65% confidence!
+
+🥉 TIER 3 - MODERATE EVIDENCE (Confidence: 30-50%)
+✓ General architectural style (could match 5+ countries)
+✓ Climate and vegetation (broad geographic area)
+✓ Vehicle types (common across multiple regions)
+✓ Generic urban/rural characteristics
+
+⚠️ WARNING: TIER 3 alone = MAX 45% confidence!
+
+❌ TIER 4 - INSUFFICIENT EVIDENCE (Confidence: 0-25%)
+✓ Generic buildings that could be anywhere
+✓ Natural landscapes without unique features
+✓ Common objects without regional specificity
+✓ Ambiguous features
+
+═══════════════════════════════════════════════════════════════
+MANDATORY VERIFICATION PROCESS (FOLLOW EVERY STEP!)
+═══════════════════════════════════════════════════════════════
+
+STEP 1: EVIDENCE COLLECTION
+- List EVERY visible indicator in the image
+- Classify each indicator by TIER (1, 2, 3, or 4)
+- Count indicators per tier
+
+STEP 2: CONTRADICTION CHECK
+- Do ANY indicators contradict each other?
+- If YES: REDUCE confidence by 30% immediately
+- Example: European architecture + Asian license plates = CONTRADICTION
+
+STEP 3: ALTERNATIVE LOCATIONS
+- List 3 OTHER locations that could match these indicators
+- If you can easily find alternatives: REDUCE confidence by 20%
+
+STEP 4: SPECIFICITY TEST
+- Are your indicators SPECIFIC or GENERIC?
+- Generic (e.g., "modern building"): REDUCE confidence by 15%
+- Specific (e.g., "Deutsche Bahn station sign"): INCREASE confidence by 10%
+
+STEP 5: CONFIDENCE CALCULATION
+Base Score = 0%
++ TIER 1 indicators: +20% each (max 3 counted)
++ TIER 2 indicators: +10% each (max 4 counted)
++ TIER 3 indicators: +5% each (max 3 counted)
+- Contradictions: -30%
+- Easy alternatives: -20%
+- Generic indicators: -15%
+- Uncertainty words in reasoning: -10%
+
+FINAL SCORE = MAX(0, MIN(100, Base Score))
+
+STEP 6: REALITY CHECK
+- If confidence > 70% but you have doubts: SET TO 60%
+- If confidence > 80% but not 100% certain: SET TO 70%
+- If confidence > 90% but not a famous landmark: SET TO 80%
+
+═══════════════════════════════════════════════════════════════
+FORBIDDEN PHRASES (NEVER USE THESE!)
+═══════════════════════════════════════════════════════════════
+❌ "appears to be" → Use "is" or lower confidence
+❌ "seems like" → Use "is" or lower confidence
+❌ "possibly" → Lower confidence by 20%
+❌ "might be" → Lower confidence by 20%
+❌ "could be" → Lower confidence by 20%
+❌ "likely" → Lower confidence by 15%
+❌ "probably" → Lower confidence by 15%
+❌ "suggests" → Lower confidence by 10%
+
+═══════════════════════════════════════════════════════════════
+OUTPUT FORMAT (STRICT JSON - NO MARKDOWN!)
+═══════════════════════════════════════════════════════════════
+
 {
   "location": {
-    "city": "Exact City Name",
-    "country": "Exact Country Name",
+    "city": "EXACT City Name OR 'Unknown' if uncertain",
+    "country": "EXACT Country Name OR 'Unknown' if uncertain",
     "lat": 52.5200,
     "lng": 13.4050,
-    "confidence": 85
+    "confidence": 45
   },
   "analysis": {
-    "description": "Brief, factual description",
-    "clues": ["Specific clue 1", "Specific clue 2"],
-    "reasoning": "Step-by-step reasoning"
+    "description": "FACTUAL description of what you see (no speculation)",
+    "clues": [
+      "TIER 1: Specific evidence with details",
+      "TIER 2: Supporting evidence with context",
+      "TIER 3: General observation"
+    ],
+    "reasoning": "STEP-BY-STEP: 1) Evidence collected: [list]. 2) Tier classification: [counts]. 3) Contradictions: [yes/no]. 4) Alternatives: [list]. 5) Confidence calculation: [show math]. 6) Final decision: [why this confidence]"
   }
 }
 
-Confidence Guidelines:
-- 90-100%: Unique landmark or clear street sign with coordinates
-- 70-89%: Multiple strong indicators (architecture + language + vehicles)
-- 50-69%: Some indicators but ambiguous
-- 30-49%: Weak indicators, educated guess
-- 0-29%: Cannot determine location`;
+═══════════════════════════════════════════════════════════════
+REMEMBER: IT'S BETTER TO SAY "I DON'T KNOW" (30% confidence)
+THAN TO GUESS WRONG (70% confidence)!
+═══════════════════════════════════════════════════════════════`;
 
       const result = await this.model.generateContent([
         prompt,
@@ -158,52 +246,112 @@ Confidence Guidelines:
     const reasons: string[] = [];
     let confidence = response.location.confidence;
     
-    // Check for uncertainty indicators in raw text
-    const uncertaintyWords = ['maybe', 'possibly', 'might', 'could be', 'appears to be', 'seems like', 'probably'];
-    const hasUncertainty = uncertaintyWords.some(word => rawText.toLowerCase().includes(word));
+    // Advanced validation with multiple checks
     
-    if (hasUncertainty && confidence > 60) {
-      confidence = Math.min(confidence, 60);
-      reasons.push('Uncertainty detected in reasoning');
+    // 1. Check for uncertainty indicators in raw text
+    const uncertaintyWords = [
+      'maybe', 'possibly', 'might', 'could be', 'appears to be', 
+      'seems like', 'probably', 'perhaps', 'likely', 'suggest',
+      'indicate', 'may be', 'unclear', 'difficult to determine'
+    ];
+    const uncertaintyCount = uncertaintyWords.filter(word => 
+      rawText.toLowerCase().includes(word)
+    ).length;
+    
+    if (uncertaintyCount > 0) {
+      const penalty = Math.min(uncertaintyCount * 10, 40);
+      confidence = Math.max(confidence - penalty, 0);
+      reasons.push(`Uncertainty detected (${uncertaintyCount} indicators) - reduced by ${penalty}%`);
     }
 
-    // Check for high-confidence indicators
-    const highConfidenceIndicators = [
-      'street sign', 'license plate', 'store name', 'landmark',
-      'unique architecture', 'specific language', 'flag', 'coordinates'
+    // 2. Check for high-confidence indicators (TIER 1)
+    const tier1Indicators = [
+      'street sign', 'street name', 'license plate', 'plate number',
+      'store name', 'business name', 'landmark', 'monument',
+      'unique architecture', 'specific language', 'flag', 'coordinates',
+      'postal code', 'area code', 'metro station', 'train station'
     ];
     
-    const hasHighConfidenceIndicator = highConfidenceIndicators.some(indicator => 
+    const tier1Count = tier1Indicators.filter(indicator => 
       response.analysis.clues.some(clue => clue.toLowerCase().includes(indicator))
-    );
+    ).length;
 
-    if (!hasHighConfidenceIndicator && confidence > 70) {
+    // 3. Check for medium-confidence indicators (TIER 2)
+    const tier2Indicators = [
+      'architecture', 'building style', 'road marking', 'traffic sign',
+      'vehicle type', 'chain store', 'restaurant chain', 'electrical',
+      'climate', 'vegetation', 'urban planning'
+    ];
+    
+    const tier2Count = tier2Indicators.filter(indicator => 
+      response.analysis.clues.some(clue => clue.toLowerCase().includes(indicator))
+    ).length;
+
+    // 4. Confidence adjustment based on indicator quality
+    if (tier1Count === 0 && confidence > 70) {
       confidence = Math.min(confidence, 70);
-      reasons.push('No high-confidence indicators found');
+      reasons.push('No TIER 1 indicators - capped at 70%');
+    }
+    
+    if (tier1Count === 0 && tier2Count < 2 && confidence > 50) {
+      confidence = Math.min(confidence, 50);
+      reasons.push('Insufficient strong indicators - capped at 50%');
     }
 
-    // Validate coordinates are reasonable
+    // 5. Validate coordinates are reasonable
     const { lat, lng } = response.location;
     if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      confidence = Math.min(confidence, 30);
-      reasons.push('Invalid coordinates');
-    }
-
-    // Check if location is in water (simplified check)
-    if (this.isLikelyWater(lat, lng)) {
       confidence = Math.min(confidence, 20);
-      reasons.push('Location appears to be in water');
+      reasons.push('Invalid coordinates detected');
     }
 
-    // Validate clue quality
-    if (response.analysis.clues.length < 2 && confidence > 50) {
-      confidence = Math.min(confidence, 50);
-      reasons.push('Insufficient clues');
+    // 6. Check if location is in water (enhanced check)
+    if (this.isLikelyWater(lat, lng)) {
+      confidence = Math.min(confidence, 15);
+      reasons.push('Location appears to be in water body');
     }
+
+    // 7. Validate clue quality and quantity
+    if (response.analysis.clues.length < 2) {
+      confidence = Math.min(confidence, 40);
+      reasons.push('Insufficient clues provided');
+    }
+    
+    if (response.analysis.clues.length < 1) {
+      confidence = Math.min(confidence, 20);
+      reasons.push('No clues provided');
+    }
+
+    // 8. Check for generic descriptions
+    const genericTerms = ['building', 'street', 'road', 'tree', 'sky', 'generic'];
+    const genericCount = genericTerms.filter(term =>
+      response.analysis.description.toLowerCase().includes(term)
+    ).length;
+    
+    if (genericCount > 2 && confidence > 40) {
+      confidence = Math.min(confidence, 40);
+      reasons.push('Description too generic');
+    }
+
+    // 9. Cross-validation: Check if city/country are "Unknown"
+    if (response.location.city.toLowerCase().includes('unknown') || 
+        response.location.country.toLowerCase().includes('unknown')) {
+      confidence = Math.min(confidence, 30);
+      reasons.push('Location marked as unknown');
+    }
+
+    // 10. Reasoning quality check
+    if (response.analysis.reasoning.length < 50) {
+      confidence = Math.min(confidence, 50);
+      reasons.push('Insufficient reasoning provided');
+    }
+
+    // Final confidence score
+    confidence = Math.max(0, Math.min(100, Math.round(confidence)));
 
     return {
-      isValid: confidence >= 30,
-      confidence: Math.round(confidence),
+      isValid: confidence >= 20,
+      confidence: confidence,
       reasons
     };
   }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { AnalysisResult } from '@/types';
 import { useAnalysisStore } from '@/store/analysisStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,6 +24,7 @@ interface AnalysisPanelProps {
 }
 
 export const AnalysisPanel = ({ result, isAnalyzing }: AnalysisPanelProps) => {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('results');
   const { exportToPDF, shareAnalysis } = useAnalysisStore();
@@ -69,7 +71,7 @@ export const AnalysisPanel = ({ result, isAnalyzing }: AnalysisPanelProps) => {
             <Target className="w-8 h-8 text-white/60" />
           </div>
         </div>
-        <h3 className="text-xl font-semibold text-white mb-2">Analyzing Image...</h3>
+        <h3 className="text-xl font-semibold text-white mb-2">{t('analysis.analyzing')}</h3>
         <p className="text-white/50 text-center text-sm">
           Our AI is examining visual clues, architecture, text, and geographic indicators
         </p>
@@ -88,9 +90,9 @@ export const AnalysisPanel = ({ result, isAnalyzing }: AnalysisPanelProps) => {
         <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
           <ImageIcon className="w-10 h-10 text-white/30" />
         </div>
-        <h3 className="text-lg font-medium text-white/70 mb-2">No Analysis Yet</h3>
+        <h3 className="text-lg font-medium text-white/70 mb-2">{t('analysis.noAnalysis')}</h3>
         <p className="text-white/40 text-sm max-w-xs">
-          Upload an image to get started with AI-powered geolocation analysis
+          {t('analysis.uploadToStart')}
         </p>
       </div>
     );
@@ -105,13 +107,13 @@ export const AnalysisPanel = ({ result, isAnalyzing }: AnalysisPanelProps) => {
             value="results"
             className="data-[state=active]:bg-white data-[state=active]:text-black"
           >
-            Results
+            {t('analysis.results')}
           </TabsTrigger>
           <TabsTrigger 
             value="similar"
             className="data-[state=active]:bg-white data-[state=active]:text-black"
           >
-            Similar Images
+            {t('analysis.similarImages')}
           </TabsTrigger>
         </TabsList>
 
@@ -199,7 +201,7 @@ export const AnalysisPanel = ({ result, isAnalyzing }: AnalysisPanelProps) => {
           <div className="flex-1 overflow-auto">
             <h4 className="text-white/70 text-sm font-medium mb-3 flex items-center gap-2">
               <Lightbulb className="w-4 h-4" />
-              Key Clues
+              {t('analysis.keyClues')}
             </h4>
             <div className="space-y-2">
               {result.clues.map((clue, index) => (
@@ -224,7 +226,7 @@ export const AnalysisPanel = ({ result, isAnalyzing }: AnalysisPanelProps) => {
               className="bg-white/5 border-white/20 text-white hover:bg-white/10"
             >
               <FileDown className="w-4 h-4 mr-2" />
-              Export PDF
+              {t('analysis.exportPDF')}
             </Button>
             <Button
               onClick={handleShare}
@@ -232,13 +234,13 @@ export const AnalysisPanel = ({ result, isAnalyzing }: AnalysisPanelProps) => {
               className="bg-white/5 border-white/20 text-white hover:bg-white/10"
             >
               <Share2 className="w-4 h-4 mr-2" />
-              Share GeoSpy
+              {t('analysis.share')}
             </Button>
           </div>
 
           {/* Feedback */}
           <div className="mt-4 pt-4 border-t border-white/10">
-            <p className="text-center text-white/50 text-sm mb-3">How&apos;d we do?</p>
+            <p className="text-center text-white/50 text-sm mb-3">{t('analysis.howDidWeDo')}</p>
             <div className="flex justify-center gap-4">
               <button className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
                 <ThumbsUp className="w-5 h-5 text-white/60" />
